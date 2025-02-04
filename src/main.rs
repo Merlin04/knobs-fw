@@ -8,6 +8,8 @@ mod usb;
 
 use core::ops::DerefMut;
 
+use arduino_hal::Usart;
+use atmega_hal::usart::BaudrateExt;
 use avr_device::asm::sleep;
 use avr_device::interrupt;
 
@@ -59,6 +61,13 @@ fn main() -> ! {
 
     let pins = atmega_hal::pins!(dp);
 
+    let mut usart = Usart::new(
+        dp.USART1,
+        pins.pd2,
+        pins.pd3.into_output(),
+        BaudrateExt::into_baudrate(31250)
+    );
+    
     let s0 = pins.pf5.into_output();
     let s1 = pins.pf6.into_output();
     let s2 = pins.pf7.into_output();
@@ -94,6 +103,10 @@ fn main() -> ! {
                     );
                     let mut bytes = [0; 3];
                     message.render_slice(&mut bytes);
+                    
+                    for b in bytes {
+                        usart.write_byte(b);
+                    }
     
                     let packet = UsbMidiEventPacket::try_from_payload_bytes(CableNumber::Cable0, &bytes).unwrap();
                     
