@@ -1,0 +1,49 @@
+[package]
+name = "knobs"
+version = "0.1.0"
+authors = ["Merlin04 <Merlin04@users.noreply.github.com>"]
+edition = "2021"
+license = "MIT"
+
+[[bin]]
+name = "knobs"
+test = false
+bench = false
+
+[dependencies]
+panic-halt = "0.2.0"
+ufmt = "0.2.0"
+nb = "1.1.0"
+embedded-hal = "1.0"
+avr-device = "0.5.4"
+usb-device = "0.3.2"
+usbd-hid = "0.8.2"
+usbd-midi = "0.5.0"
+analog-multiplexer = "1.0.2"
+atmega-hal = { git = "https://github.com/supersimple33/avr-hal", version = "0.1.0", features = ["atmega32u4"] }
+midi-convert = "0.2.0"
+static_cell = "2.1.0"
+
+[dependencies.arduino-hal]
+git = "https://github.com/supersimple33/avr-hal"
+features = ["usb-device", "arduino-leonardo"]
+version = "0.1.0"
+
+# The latest releases of `proc-macro2` do not support the rust toolchain that
+# we use.  Thus, we must fix this dependency to an older version where our
+# toolchain is still supported.  See https://github.com/Rahix/avr-hal/issues/537
+[build-dependencies.proc-macro2]
+version = "=1.0.79"
+
+# Configure the build for minimal size - AVRs have very little program memory
+[profile.dev]
+panic = "abort"
+lto = true
+opt-level = "s"
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+debug = true
+lto = true
+opt-level = "s"
